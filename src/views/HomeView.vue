@@ -6,5 +6,6 @@ import TransactionForm from "@/components/TransactionForm.vue";
 <template>
   <main>
     <TransactionForm />
+
   </main>
 </template>
