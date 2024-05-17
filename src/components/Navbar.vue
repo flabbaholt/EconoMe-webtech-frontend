@@ -6,7 +6,7 @@
   <nav class="navbar navbar-expand-lg bg-body-tertiar">
     <div class="container-fluid">
       <a class="navbar-brand" href="#">
-        <img src="@/assets/logo.svg" alt="Logo" width="30" height="24" class="d-inline-block align-text-top">
+        <img src="@/assets/EconoMeLogo.jpg" alt="Logo" width="30" height="30" class="d-inline-block align-text-top">
         EconoMe
       </a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
@@ -35,5 +35,11 @@
 .nav-underline .nav-link.active,
 .nav-underline .nav-link:hover {
   border-bottom: 2px solid #008000;
+}
+
+.navbar {
+  box-sizing: border-box;
+  border-bottom: 1px solid lightgrey;
+  padding-bottom: 10px;
 }
 </style>
