@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import type { Ref } from 'vue';
 
 interface Transaction {
   name: string;
@@ -52,7 +51,7 @@ function save() {
 
 
 <template>
-  <div>
+  <div class="testclass1">
     <input v-model="nameField" placeholder="Name" type="text">
     <input v-model="typeField" placeholder="Type" type="text">
     <input v-model="amountField" placeholder="Amount" type="number">
@@ -64,7 +63,7 @@ function save() {
     <button type="button" @click="save()">Save</button>
   </div>
 
-  <div>
+  <div class="testclass1">
     <table>
       <thead>
       <tr>
@@ -99,5 +98,12 @@ function save() {
 </template>
 
 <style scoped>
-
+.testclass1 {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  justify-content: center;
+  align-items: center;
+  margin-top: 30px;
+}
 </style>
