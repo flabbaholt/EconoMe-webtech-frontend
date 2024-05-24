@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref } from 'vue';
 import AddOptionModal from "@/components/AddOptionModal.vue";
 
 interface Transaction {
@@ -125,7 +125,7 @@ function save() {
         </div>
       </div>
       <div class="col-md-6">
-        <label for="payment" class="form-label">Category</label>
+        <label for="payment" class="form-label">Payment Method</label>
         <div class="input-group">
           <select class="form-select" id="payment" aria-label="paymentMethod select" v-model="paymentMethodField">
             <option selected disabled>Choose Payment Method...</option>
@@ -153,7 +153,7 @@ function save() {
   </div>
 
   <div>
-    <h3 class="mt-3">For Testing Cases Only</h3>
+    <h3 class="mt-3">For Testing Cases Only - To be deleted</h3>
   </div>
   <div>
     <input v-model="nameField" placeholder="Name" type="text">
@@ -201,12 +201,4 @@ function save() {
 </template>
 
 <style scoped>
-.testclass1 {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  justify-content: center;
-  align-items: center;
-  margin-top: 30px;
-}
 </style>
