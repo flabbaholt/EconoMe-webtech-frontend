@@ -6,6 +6,7 @@ import OverviewTable from "@/components/OverviewTable.vue";
 <template>
 
   <OverviewTable />
+
 </template>
 
 <style scoped>

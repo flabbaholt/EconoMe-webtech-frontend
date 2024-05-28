@@ -1,5 +1,37 @@
 <script setup lang="ts">
 
+import axios from 'axios';
+import { ref, onMounted } from 'vue';
+
+interface Transaction {
+  name: string;
+  type: string;
+  amount: number;
+  category: string;
+  paymentMethod: string;
+  currency: string;
+  description: string;
+  date: string;
+}
+
+// Reaktive Referenz für die Transaktionsdaten
+const transactions = ref<Transaction[]>([]);
+
+// Funktion zum Abrufen der Transaktionen vom Backend
+async function fetchTransactions() {
+  try {
+    console.log('Backend URL:', import.meta.env.VITE_APP_BACKEND_BASE_URL); // Log the backend URL
+    const response = await axios.get(`${import.meta.env.VITE_APP_BACKEND_BASE_URL}/transactions`);
+    transactions.value = response.data;
+  } catch (error) {
+    console.error("Fehler beim Abrufen der Transaktionen:", error);
+  }
+}
+
+// Abrufen der Transaktionen beim Mounten der Komponente
+onMounted(() => {
+  fetchTransactions();
+});
 </script>
 
 <template>
@@ -19,7 +51,8 @@
       </tr>
       </thead>
       <tbody>
-      <tr v-for="(item, index) in data" :key="index">
+      
+      <tr v-for="(item, index) in transactions" :key="index">
         <th scope="row">{{ index + 1 }}</th>
         <td>{{ item.name }}</td>
         <td>{{ item.type }}</td>
@@ -36,5 +69,14 @@
 </template>
 
 <style scoped>
+.container-md {
+  max-width: 80%;
+  margin: auto;
+  padding-top: 20px;
+}
 
+.table {
+  width: 100%;
+  margin-top: 20px;
+}
 </style>
