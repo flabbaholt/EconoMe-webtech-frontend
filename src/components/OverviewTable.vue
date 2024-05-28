@@ -1,4 +1,5 @@
 <script setup lang="ts">
+
 import axios from 'axios';
 import { ref, onMounted } from 'vue';
 
@@ -50,6 +51,7 @@ onMounted(() => {
       </tr>
       </thead>
       <tbody>
+      
       <tr v-for="(item, index) in transactions" :key="index">
         <th scope="row">{{ index + 1 }}</th>
         <td>{{ item.name }}</td>
