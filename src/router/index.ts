@@ -13,7 +13,7 @@ const router = createRouter({
     {
       path: '/overview',
       name: 'overview',
-      component: OverviewView
+      component: () => import('../views/OverviewView.vue')
     },
     {
       path: '/dashboard',
