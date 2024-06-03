@@ -5,13 +5,13 @@ import { ref, onMounted } from 'vue';
 
 interface Transaction {
   name: string;
-  type: string;
+  typeName: string;
   amount: number;
-  category: string;
-  paymentMethod: string;
-  currency: string;
+  categoryName: string;
+  paymentMethodName: string;
+  currencyName: string;
   description: string;
-  date: string;
+  transactionDate: string;
 }
 
 // Reaktive Referenz für die Transaktionsdaten
@@ -46,7 +46,6 @@ onMounted(() => {
         <th scope="col">Category</th>
         <th scope="col">Payment Method</th>
         <th scope="col">Currency</th>
-        <th scope="col">Description</th>
         <th scope="col">Date</th>
       </tr>
       </thead>
@@ -55,13 +54,12 @@ onMounted(() => {
       <tr v-for="(item, index) in transactions" :key="index">
         <th scope="row">{{ index + 1 }}</th>
         <td>{{ item.name }}</td>
-        <td>{{ item.type }}</td>
+        <td>{{ item.typeName }}</td>
         <td>{{ item.amount }}</td>
-        <td>{{ item.category }}</td>
-        <td>{{ item.paymentMethod }}</td>
-        <td>{{ item.currency }}</td>
-        <td>{{ item.description }}</td>
-        <td>{{ item.date }}</td>
+        <td>{{ item.categoryName }}</td>
+        <td>{{ item.paymentMethodName }}</td>
+        <td>{{ item.currencyName }}</td>
+        <td>{{ item.transactionDate.join('-') }}</td>
       </tr>
       </tbody>
     </table>

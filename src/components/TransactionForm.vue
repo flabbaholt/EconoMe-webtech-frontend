@@ -63,7 +63,6 @@ function save() {
     category: categoryField.value,
     paymentMethod: paymentMethodField.value,
     currency: currencyField.value,
-    description: descriptionField.value,
     date: dateField.value
   };
 
