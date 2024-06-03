@@ -10,7 +10,6 @@ interface Transaction {
   categoryName: string;
   paymentMethodName: string;
   currencyName: string;
-  description: string;
   transactionDate: string;
 }
 
@@ -59,7 +58,7 @@ onMounted(() => {
         <td>{{ item.categoryName }}</td>
         <td>{{ item.paymentMethodName }}</td>
         <td>{{ item.currencyName }}</td>
-        <td>{{ item.transactionDate.join('-') }}</td>
+        <td>{{ item.transactionDate.join('-')}}</td>
       </tr>
       </tbody>
     </table>

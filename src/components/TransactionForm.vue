@@ -9,7 +9,6 @@ interface Transaction {
   category: string;
   paymentMethod: string;
   currency: string;
-  description: string;
   date: string;
 }
 
@@ -161,7 +160,6 @@ function save() {
     <input v-model="categoryField" placeholder="Category" type="text">
     <input v-model="paymentMethodField" placeholder="Payment Method" type="text">
     <input v-model="currencyField" placeholder="Currency" type="text">
-    <input v-model="descriptionField" placeholder="Description" type="text">
     <input v-model="dateField" placeholder="Date" type="date">
     <button type="button" @click="save()">Save</button>
   </div>
@@ -175,7 +173,6 @@ function save() {
         <th>Category</th>
         <th>Payment Method</th>
         <th>Currency</th>
-        <th>Description</th>
         <th>Date</th>
       </tr>
       </thead>
@@ -190,7 +187,6 @@ function save() {
         <td>{{ transaction.category }}</td>
         <td>{{ transaction.paymentMethod }}</td>
         <td>{{ transaction.currency }}</td>
-        <td>{{ transaction.description }}</td>
         <td>{{ transaction.date }}</td>
       </tr>
       </tbody>
