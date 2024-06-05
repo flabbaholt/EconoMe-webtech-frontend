@@ -114,16 +114,16 @@ const filteredTransactions = computed(() => {
       </tr>
       </thead>
       <tbody>
-      
-      <tr v-for="(item, index) in transactions" :key="index">
+      <tr v-for="(transaction, index) in filteredTransactions" :key="transaction.id">
         <th scope="row">{{ index + 1 }}</th>
-        <td>{{ item.name }}</td>
-        <td>{{ item.typeName }}</td>
-        <td>{{ item.amount }}</td>
-        <td>{{ item.categoryName }}</td>
-        <td>{{ item.paymentMethodName }}</td>
-        <td>{{ item.currencyName }}</td>
-        <td>{{ item.transactionDate}}</td>
+        <td>{{ transaction.name }}</td>
+        <td>{{ transaction.type }}</td>
+        <td>{{ transaction.amount }}</td>
+        <td>{{ transaction.category }}</td>
+        <td>{{ transaction.paymentMethod }}</td>
+        <td>{{ transaction.currency }}</td>
+        <td>{{ transaction.description }}</td>
+        <td>{{ transaction.date }}</td>
       </tr>
       </tbody>
     </table>
