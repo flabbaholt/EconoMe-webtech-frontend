@@ -14,7 +14,6 @@ interface Transaction {
   date: string;
 }
 
-// Reaktive Referenz für die Transaktionsdaten
 const transactions = ref<Transaction[]>([]);
 
 // Funktion zum Abrufen der Transaktionen vom Backend
