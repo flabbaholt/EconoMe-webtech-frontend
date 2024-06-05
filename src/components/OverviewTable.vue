@@ -33,7 +33,15 @@ async function fetchTransactions() {
   }
 }
 
-// Abrufen der Transaktionen beim Mounten der Komponente
+async function fetchCurrencyRates() {
+  try {
+    const response = await axios.get(`${import.meta.env.VITE_APP_BACKEND_BASE_URL}/currency/rates`);
+    console.log('Currency rates:', response.data);
+  } catch (error) {
+    console.error("Fehler beim Abrufen der Währungskurse:", error);
+  }
+}
+
 onMounted(() => {
   fetchTransactions();
 });
