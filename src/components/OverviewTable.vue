@@ -21,8 +21,8 @@ const filterMonth = ref('');
 const filterType = ref('');
 const filterCategory = ref('');
 
-// Funktion zum Abrufen der Transaktionen vom Backend
 const years = ref([2022, 2023, 2024, 2025]);
+
 async function fetchTransactions() {
   try {
     console.log('Backend URL:', import.meta.env.VITE_APP_BACKEND_BASE_URL); // Log the backend URL
