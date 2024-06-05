@@ -26,7 +26,6 @@ const months = ref(['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep
 
 async function fetchTransactions() {
   try {
-    console.log('Backend URL:', import.meta.env.VITE_APP_BACKEND_BASE_URL); // Log the backend URL
     const response = await axios.get(`${import.meta.env.VITE_APP_BACKEND_BASE_URL}/transactions`);
     transactions.value = response.data;
   } catch (error) {
