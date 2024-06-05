@@ -63,6 +63,11 @@ const filteredTransactions = computed(() => {
   <div class="container-md border bg-secondary-custom rounded w-50 mt-3">
     <table class="table table-striped mt-3 border rounded-1">
       <thead>
+        <div class="mb-2">
+          <div class="btn-group me-2" role="group" aria-label="Year filter">
+            <button v-for="year in years" :key="year" type="button" class="btn btn-outline-primary btn-sm" @click="filterYear = year.toString()">{{ year }}</button>
+          </div>
+        </div>
       <tr>
         <th scope="col">#</th>
         <th scope="col">Name</th>
