@@ -68,6 +68,12 @@ const filteredTransactions = computed(() => {
             <button v-for="year in years" :key="year" type="button" class="btn btn-outline-primary btn-sm" @click="filterYear = year.toString()">{{ year }}</button>
           </div>
         </div>
+        <div>
+          <div class="btn-group" role="group" aria-label="Month filter">
+            <button v-for="month in months" :key="month" type="button" class="btn btn-outline-secondary btn-sm" @click="filterMonth = month">{{ month }}</button>
+          </div>
+        </div>
+      </div>
       <tr>
         <th scope="col">#</th>
         <th scope="col">Name</th>
