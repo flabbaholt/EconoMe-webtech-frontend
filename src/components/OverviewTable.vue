@@ -60,9 +60,10 @@ const filteredTransactions = computed(() => {
 </script>
 
 <template>
-  <div class="container-md border bg-secondary-custom rounded w-50 mt-3">
-    <table class="table table-striped mt-3 border rounded-1">
-      <thead>
+  <div class="container-md bg-light p-4 rounded">
+    <h2 class="mb-4">Transaction Overview</h2>
+    <div class="d-flex justify-content-between mb-3">
+      <div>
         <div class="mb-2">
           <div class="btn-group me-2" role="group" aria-label="Year filter">
             <button v-for="year in years" :key="year" type="button" class="btn btn-outline-primary btn-sm" @click="filterYear = year.toString()">{{ year }}</button>
@@ -130,9 +131,6 @@ const filteredTransactions = computed(() => {
 
 <style scoped>
 .container-md {
-  max-width: 80%;
-  margin: auto;
-  padding-top: 20px;
   background-color: #f8f9fa;
 }
 
@@ -146,8 +144,8 @@ const filteredTransactions = computed(() => {
 
 .mb-3 input {
   width: 100%;
-  margin-top: 20px;
 }
+
 .table-dark {
   background-color: #343a40;
   color: white;
