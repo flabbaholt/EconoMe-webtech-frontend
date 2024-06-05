@@ -22,6 +22,7 @@ const filterType = ref('');
 const filterCategory = ref('');
 
 const years = ref([2022, 2023, 2024, 2025]);
+const months = ref(['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']);
 
 async function fetchTransactions() {
   try {
