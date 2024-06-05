@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
+import axios from 'axios';
 import AddOptionModal from "@/components/AddOptionModal.vue";
 
 interface Transaction {
@@ -12,6 +13,11 @@ interface Transaction {
   date: string;
 }
 
+interface DropdownItem {
+  id: number;
+  name: string;
+}
+
 
 const nameField = ref<string>('');
 const typeField = ref<string>('');
@@ -22,9 +28,9 @@ const currencyField = ref<string>('EUR');
 const descriptionField = ref<string>('');
 const dateField = ref<string>('');
 
-const currencyDropdownItems = ref<string[]>(['USD', 'EUR', 'GBP', 'JPY', 'CAD']);
-const categoryDropdownItems = ref<string[]>(['Grocery', 'Shopping', 'Apartment', 'Fun', 'Restaurant']);
-const paymentDropdownItems = ref<string[]>(['Card', 'Cash', 'Paypal']);
+const currencyDropdownItems = ref<string[]>([]);
+const categoryDropdownItems = ref<string[]>([]);
+const paymentDropdownItems = ref<string[]>([]);
 
 const addCurrency = (newCurrency: string) => {
   if (newCurrency && !currencyDropdownItems.value.includes(newCurrency)) {
@@ -48,6 +54,48 @@ const setType = (type: string) => {
 }
 
 const transactions = ref<Transaction[]>([]);
+
+async function fetchDropdownItems() {
+  try {
+    const currencyResponse = await axios.get(`${import.meta.env.VITE_APP_BACKEND_BASE_URL}/currencies`);
+    currencyDropdownItems.value = currencyResponse.data.map((item: DropdownItem) => item.name);
+
+    const categoryResponse = await axios.get(`${import.meta.env.VITE_APP_BACKEND_BASE_URL}/categories`);
+    categoryDropdownItems.value = categoryResponse.data.map((item: DropdownItem) => item.name);
+
+    const paymentResponse = await axios.get(`${import.meta.env.VITE_APP_BACKEND_BASE_URL}/paymentMethods`);
+    paymentDropdownItems.value = paymentResponse.data.map((item: DropdownItem) => item.name);
+  } catch (error) {
+    console.error("Error fetching dropdown items:", error);
+  }
+}
+
+async function fetchCurrencyItems() {
+  try {
+    const currencyResponse = await axios.get(`${import.meta.env.VITE_APP_BACKEND_BASE_URL}/currencies`);
+    currencyDropdownItems.value = currencyResponse.data.map((item: DropdownItem) => item.name);
+  } catch (error) {
+    console.error("Error fetching currency dropdown items:", error);
+  }
+}
+
+async function fetchCategoryItems() {
+  try {
+    const categoryResponse = await axios.get(`${import.meta.env.VITE_APP_BACKEND_BASE_URL}/categories`);
+    categoryDropdownItems.value = categoryResponse.data.map((item: DropdownItem) => item.name);
+  } catch (error) {
+    console.error("Error fetching category dropdown items:", error);
+  }
+}
+
+async function fetchPaymentItems() {
+  try {
+    const paymentResponse = await axios.get(`${import.meta.env.VITE_APP_BACKEND_BASE_URL}/paymentMethods`);
+    paymentDropdownItems.value = paymentResponse.data.map((item: DropdownItem) => item.name);
+  } catch (error) {
+    console.error("Error fetching paymentmethod dropdown items:", error);
+  }
+}
 
 function save() {
   let amount = Math.abs(amountField.value);
@@ -77,6 +125,11 @@ function save() {
   descriptionField.value = '';
   dateField.value = '';
 }
+
+onMounted(() => {
+  fetchDropdownItems();
+});
+
 </script>
 
 
@@ -97,7 +150,7 @@ function save() {
         <label for="amount" class="form-label">Amount*</label>
         <div class="input-group">
           <input type="number" class="form-control" id="amount" v-model="amountField">
-          <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">{{ currencyField }}</button>
+          <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" @click="fetchCurrencyItems">{{ currencyField }}</button>
           <ul class="dropdown-menu dropdown-menu-end">
             <li v-for="item in currencyDropdownItems" :key="item" @click="currencyField = item">
               <a class="dropdown-item" href="#">{{ item }}</a>
@@ -113,7 +166,7 @@ function save() {
       <div class="col-md-6">
         <label for="category" class="form-label">Category</label>
         <div class="input-group">
-          <select class="form-select" id="category" aria-label="category select" v-model="categoryField">
+          <select class="form-select" id="category" aria-label="category select" v-model="categoryField" @click="fetchCategoryItems">
             <option selected disabled>Choose Category...</option>
             <option v-for="item in categoryDropdownItems" :key="item" :value = "item">
               {{ item }}
@@ -125,7 +178,7 @@ function save() {
       <div class="col-md-6">
         <label for="payment" class="form-label">Payment Method</label>
         <div class="input-group">
-          <select class="form-select" id="payment" aria-label="paymentMethod select" v-model="paymentMethodField">
+          <select class="form-select" id="payment" aria-label="paymentMethod select" v-model="paymentMethodField" @click="fetchPaymentItems">
             <option selected disabled>Choose Payment Method...</option>
             <option v-for="item in paymentDropdownItems" :key="item" :value = "item">
               {{ item }}
@@ -162,35 +215,6 @@ function save() {
     <input v-model="currencyField" placeholder="Currency" type="text">
     <input v-model="dateField" placeholder="Date" type="date">
     <button type="button" @click="save()">Save</button>
-  </div>
-  <div>
-    <table>
-      <thead>
-      <tr>
-        <th>Name</th>
-        <th>Type</th>
-        <th>Amount</th>
-        <th>Category</th>
-        <th>Payment Method</th>
-        <th>Currency</th>
-        <th>Date</th>
-      </tr>
-      </thead>
-      <tbody>
-      <tr v-if="transactions.length === 0">
-        <td colspan="8">No transactions yet</td>
-      </tr>
-      <tr v-for="transaction in transactions" :key="transaction.date">
-        <td>{{ transaction.name }}</td>
-        <td>{{ transaction.type }}</td>
-        <td>{{ transaction.amount }}</td>
-        <td>{{ transaction.category }}</td>
-        <td>{{ transaction.paymentMethod }}</td>
-        <td>{{ transaction.currency }}</td>
-        <td>{{ transaction.date }}</td>
-      </tr>
-      </tbody>
-    </table>
   </div>
 
 </template>
