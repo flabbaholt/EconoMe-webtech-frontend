@@ -16,6 +16,7 @@ interface Transaction {
 
 const transactions = ref<Transaction[]>([]);
 const searchTerm = ref('');
+const filterYear = ref('');
 
 // Funktion zum Abrufen der Transaktionen vom Backend
 async function fetchTransactions() {
