@@ -79,6 +79,25 @@ const filteredTransactions = computed(() => {
     <div class="mb-3">
       <input v-model="searchTerm" type="text" class="form-control" placeholder="Search transactions..." />
     </div>
+    <div class="row mb-3">
+      <div class="col-md-6">
+        <select v-model="filterType" class="form-select">
+          <option value="">All Types</option>
+          <option value="Income">Income</option>
+          <option value="Expense">Expense</option>
+        </select>
+      </div>
+      <div class="col-md-6">
+        <select v-model="filterCategory" class="form-select">
+          <option value="">All Categories</option>
+          <option value="Grocery">Grocery</option>
+          <option value="Shopping">Shopping</option>
+          <option value="Apartment">Apartment</option>
+          <option value="Fun">Fun</option>
+          <option value="Restaurant">Restaurant</option>
+        </select>
+      </div>
+    </div>
       <tr>
         <th scope="col">#</th>
         <th scope="col">Name</th>
