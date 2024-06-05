@@ -45,6 +45,18 @@ async function fetchCurrencyRates() {
 onMounted(() => {
   fetchTransactions();
 });
+
+const filteredTransactions = computed(() => {
+  return transactions.value.filter(transaction =>
+    (filterYear.value === '' || new Date(transaction.date).getFullYear() === parseInt(filterYear.value)) &&
+    (filterMonth.value === '' || new Date(transaction.date).toLocaleString('default', { month: 'short' }) === filterMonth.value) &&
+    (transaction.name.toLowerCase().includes(searchTerm.value.toLowerCase()) ||
+      transaction.type.toLowerCase().includes(searchTerm.value.toLowerCase()) ||
+      transaction.category.toLowerCase().includes(searchTerm.value.toLowerCase())) &&
+    (filterType.value === '' || transaction.type === filterType.value) &&
+    (filterCategory.value === '' || transaction.category === filterCategory.value)
+  );
+});
 </script>
 
 <template>
