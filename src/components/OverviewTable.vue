@@ -3,13 +3,15 @@ import axios from 'axios';
 import { ref, onMounted, computed } from 'vue';
 
 interface Transaction {
+  id: number;
   name: string;
-  typeName: string;
+  type: string;
   amount: number;
-  categoryName: string;
-  paymentMethodName: string;
-  currencyName: string;
-  transactionDate: string;
+  category: string;
+  paymentMethod: string;
+  currency: string;
+  description: string;
+  date: string;
 }
 
 // Reaktive Referenz für die Transaktionsdaten
