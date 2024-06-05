@@ -18,6 +18,7 @@ const transactions = ref<Transaction[]>([]);
 const searchTerm = ref('');
 const filterYear = ref('');
 const filterMonth = ref('');
+const filterType = ref('');
 
 // Funktion zum Abrufen der Transaktionen vom Backend
 async function fetchTransactions() {
