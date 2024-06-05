@@ -3,15 +3,18 @@ import axios from 'axios';
 import { ref, onMounted, computed } from 'vue';
 
 interface Transaction {
+  name: string;
+  typeName: string;
+  amount: number;
+  categoryName: string;
+  paymentMethodName: string;
+  currencyName: string;
+  transactionDate: string;
+}
+
+interface DropdownItem {
   id: number;
   name: string;
-  type: string;
-  amount: number;
-  category: string;
-  paymentMethod: string;
-  currency: string;
-  description: string;
-  date: string;
 }
 
 const transactions = ref<Transaction[]>([]);
@@ -20,6 +23,10 @@ const filterYear = ref('');
 const filterMonth = ref('');
 const filterType = ref('');
 const filterCategory = ref('');
+
+const categoryDropdownItems = ref<string[]>([]);
+const currencyDropdownItems = ref<string[]>(['EUR']);
+const selectedCurrency = ref('EUR');
 
 const years = ref([2022, 2023, 2024, 2025]);
 const months = ref(['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']);
@@ -33,6 +40,27 @@ async function fetchTransactions() {
   }
 }
 
+async function fetchCurrencyItems() {
+  try {
+    const currencyResponse = await axios.get(`${import.meta.env.VITE_APP_BACKEND_BASE_URL}/currencies`);
+    currencyDropdownItems.value = currencyResponse.data.map((item: DropdownItem) => item.name);
+  } catch (error) {
+    console.error("Error fetching currency dropdown items:", error);
+  }
+}
+
+async function fetchCategoryItems() {
+  try {
+    const categoryResponse = await axios.get(`${import.meta.env.VITE_APP_BACKEND_BASE_URL}/categories`);
+    categoryDropdownItems.value = categoryResponse.data.map((item: DropdownItem) => item.name);
+  } catch (error) {
+    console.error("Error fetching category dropdown items:", error);
+  }
+}
+function selectCurrency(currency: string) {
+  selectedCurrency.value = currency;
+}
+/*
 async function fetchCurrencyRates() {
   try {
     const response = await axios.get(`${import.meta.env.VITE_APP_BACKEND_BASE_URL}/currency/rates`);
@@ -41,26 +69,26 @@ async function fetchCurrencyRates() {
     console.error("Fehler beim Abrufen der Währungskurse:", error);
   }
 }
-
+*/
 onMounted(() => {
   fetchTransactions();
 });
 
 const filteredTransactions = computed(() => {
   return transactions.value.filter(transaction =>
-    (filterYear.value === '' || new Date(transaction.date).getFullYear() === parseInt(filterYear.value)) &&
-    (filterMonth.value === '' || new Date(transaction.date).toLocaleString('default', { month: 'short' }) === filterMonth.value) &&
-    (transaction.name.toLowerCase().includes(searchTerm.value.toLowerCase()) ||
-      transaction.type.toLowerCase().includes(searchTerm.value.toLowerCase()) ||
-      transaction.category.toLowerCase().includes(searchTerm.value.toLowerCase())) &&
-    (filterType.value === '' || transaction.type === filterType.value) &&
-    (filterCategory.value === '' || transaction.category === filterCategory.value)
+      (filterYear.value === '' || new Date(transaction.transactionDate).getFullYear() === parseInt(filterYear.value)) &&
+      (filterMonth.value === '' || new Date(transaction.transactionDate).toLocaleString('default', { month: 'short' }) === filterMonth.value) &&
+      (transaction.name.toLowerCase().includes(searchTerm.value.toLowerCase()) ||
+          transaction.typeName.toLowerCase().includes(searchTerm.value.toLowerCase()) ||
+          transaction.categoryName.toLowerCase().includes(searchTerm.value.toLowerCase())) &&
+      (filterType.value === '' || transaction.typeName === filterType.value) &&
+      (filterCategory.value === '' || transaction.categoryName === filterCategory.value)
   );
 });
 </script>
 
 <template>
-  <div class="container-md bg-light p-4 rounded">
+  <div class="container-md border bg-light p-4 rounded mt-3">
     <h2 class="mb-4">Transaction Overview</h2>
     <div class="d-flex justify-content-between mb-3">
       <div>
@@ -75,7 +103,14 @@ const filteredTransactions = computed(() => {
           </div>
         </div>
       </div>
-      <button type="button" class="btn btn-outline-success btn-sm" @click="fetchCurrencyRates">Currency</button>
+      <div class="justify-content-center">
+        <button class="btn btn-outline-success btn-lg dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" @click="fetchCurrencyItems">{{selectedCurrency}}</button>
+        <ul class="dropdown-menu dropdown-menu-end">
+          <li v-for="item in currencyDropdownItems" :key="item" :value = "item">
+            <a class="dropdown-item" href="#" @click="selectCurrency(item)">{{ item }}</a>
+          </li>
+        </ul>
+      </div>
     </div>
     <div class="mb-3">
       <input v-model="searchTerm" type="text" class="form-control" placeholder="Search transactions..." />
@@ -89,13 +124,11 @@ const filteredTransactions = computed(() => {
         </select>
       </div>
       <div class="col-md-6">
-        <select v-model="filterCategory" class="form-select">
-          <option value="">All Categories</option>
-          <option value="Grocery">Grocery</option>
-          <option value="Shopping">Shopping</option>
-          <option value="Apartment">Apartment</option>
-          <option value="Fun">Fun</option>
-          <option value="Restaurant">Restaurant</option>
+        <select class="form-select" aria-label="category-filter" v-model="filterCategory" @click="fetchCategoryItems">
+          <option value>All Categories</option>
+          <option v-for="item in categoryDropdownItems" :key="item" :value = "item">
+            {{ item }}
+          </option>
         </select>
       </div>
     </div>
@@ -109,21 +142,19 @@ const filteredTransactions = computed(() => {
         <th scope="col">Category</th>
         <th scope="col">Payment Method</th>
         <th scope="col">Currency</th>
-        <th scope="col">Description</th>
         <th scope="col">Date</th>
       </tr>
       </thead>
       <tbody>
-      <tr v-for="(transaction, index) in filteredTransactions" :key="transaction.id">
+      <tr v-for="(transaction, index) in filteredTransactions" :key="index">
         <th scope="row">{{ index + 1 }}</th>
         <td>{{ transaction.name }}</td>
-        <td>{{ transaction.type }}</td>
+        <td>{{ transaction.typeName }}</td>
         <td>{{ transaction.amount }}</td>
-        <td>{{ transaction.category }}</td>
-        <td>{{ transaction.paymentMethod }}</td>
-        <td>{{ transaction.currency }}</td>
-        <td>{{ transaction.description }}</td>
-        <td>{{ transaction.date }}</td>
+        <td>{{ transaction.categoryName }}</td>
+        <td>{{ transaction.paymentMethodName }}</td>
+        <td>{{ transaction.currencyName }}</td>
+        <td>{{ transaction.transactionDate }}</td>
       </tr>
       </tbody>
     </table>
