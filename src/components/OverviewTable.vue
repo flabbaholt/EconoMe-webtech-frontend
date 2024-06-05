@@ -74,6 +74,8 @@ const filteredTransactions = computed(() => {
           </div>
         </div>
       </div>
+      <button type="button" class="btn btn-outline-success btn-sm" @click="fetchCurrencyRates">Currency</button>
+    </div>
       <tr>
         <th scope="col">#</th>
         <th scope="col">Name</th>
