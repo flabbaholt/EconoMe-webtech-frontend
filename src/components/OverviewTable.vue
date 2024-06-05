@@ -109,6 +109,7 @@ const filteredTransactions = computed(() => {
         <th scope="col">Category</th>
         <th scope="col">Payment Method</th>
         <th scope="col">Currency</th>
+        <th scope="col">Description</th>
         <th scope="col">Date</th>
       </tr>
       </thead>
