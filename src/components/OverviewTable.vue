@@ -76,6 +76,9 @@ const filteredTransactions = computed(() => {
       </div>
       <button type="button" class="btn btn-outline-success btn-sm" @click="fetchCurrencyRates">Currency</button>
     </div>
+    <div class="mb-3">
+      <input v-model="searchTerm" type="text" class="form-control" placeholder="Search transactions..." />
+    </div>
       <tr>
         <th scope="col">#</th>
         <th scope="col">Name</th>
