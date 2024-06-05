@@ -98,6 +98,8 @@ const filteredTransactions = computed(() => {
         </select>
       </div>
     </div>
+    <table class="table table-hover table-bordered">
+      <thead class="table-dark">
       <tr>
         <th scope="col">#</th>
         <th scope="col">Name</th>
@@ -131,10 +133,23 @@ const filteredTransactions = computed(() => {
   max-width: 80%;
   margin: auto;
   padding-top: 20px;
+  background-color: #f8f9fa;
 }
 
-.table {
+.table-hover tbody tr:hover {
+  background-color: #f1f1f1;
+}
+
+.btn-group .btn {
+  margin-right: 5px;
+}
+
+.mb-3 input {
   width: 100%;
   margin-top: 20px;
+}
+.table-dark {
+  background-color: #343a40;
+  color: white;
 }
 </style>
