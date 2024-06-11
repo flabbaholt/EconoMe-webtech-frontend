@@ -3,6 +3,7 @@ import axios from 'axios';
 import { ref, onMounted, computed } from 'vue';
 
 interface Transaction {
+  id: number;
   name: string;
   typeName: string;
   amount: number;
@@ -57,6 +58,17 @@ async function fetchCategoryItems() {
     console.error("Error fetching category dropdown items:", error);
   }
 }
+
+async function deleteTransaction(id: number) {
+  try {
+    const response = await axios.delete(`${import.meta.env.VITE_APP_BACKEND_BASE_URL}/transactions/deleteById/${id}`);
+    console.log('Transaction deleted:', response.data);
+    fetchTransactions();
+  } catch (error) {
+    console.error("Error deleting transaction:", error);
+  }
+}
+
 function selectCurrency(currency: string) {
   selectedCurrency.value = currency;
 }
@@ -143,6 +155,7 @@ const filteredTransactions = computed(() => {
         <th scope="col">Payment Method</th>
         <th scope="col">Currency</th>
         <th scope="col">Date</th>
+        <th scope="col">Actions</th>
       </tr>
       </thead>
       <tbody>
@@ -155,6 +168,12 @@ const filteredTransactions = computed(() => {
         <td>{{ transaction.paymentMethodName }}</td>
         <td>{{ transaction.currencyName }}</td>
         <td>{{ transaction.transactionDate }}</td>
+        <td>
+          <div class="btn-group" role="group" aria-label="Transaction Actions">
+            <button type="button" class="btn btn-outline-primary">Edit</button>
+            <button type="button" class="btn btn-outline-danger" @click="deleteTransaction(transaction.id)" >Delete</button>
+          </div>
+        </td>
       </tr>
       </tbody>
     </table>
