@@ -1,16 +1,16 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import {ref, onMounted, computed, watch} from 'vue';
 import axios from 'axios';
 import AddOptionModal from "@/components/AddOptionModal.vue";
 
 interface Transaction {
   name: string;
-  type: string;
+  typeName: string;
   amount: number;
-  category: string;
-  paymentMethod: string;
-  currency: string;
-  date: string;
+  categoryName: string;
+  paymentMethodName: string;
+  currencyName: string;
+  transactionDate: string;
 }
 
 interface DropdownItem {
@@ -31,6 +31,11 @@ const dateField = ref<string>('');
 const currencyDropdownItems = ref<string[]>([]);
 const categoryDropdownItems = ref<string[]>([]);
 const paymentDropdownItems = ref<string[]>([]);
+
+let formValid = ref(false);
+watch([nameField, typeField, amountField, currencyField, dateField], () => {
+  formValid.value = Boolean(nameField.value && typeField.value && amountField.value && dateField.value && (typeField.value === 'Expense' || typeField.value === 'Income'));
+}, { immediate: true });
 
 const addCurrency = (newCurrency: string) => {
   if (newCurrency && !currencyDropdownItems.value.includes(newCurrency)) {
@@ -97,23 +102,37 @@ async function fetchPaymentItems() {
   }
 }
 
-function save() {
+async function save() {
   let amount = Math.abs(amountField.value);
 
   if (typeField.value === 'Expense') {
     amount = -amount;
   }
-  const newTransaction: Transaction = {
+  const newTransaction = {
     name: nameField.value,
-    type: typeField.value,
     amount: amount,
-    category: categoryField.value,
-    paymentMethod: paymentMethodField.value,
-    currency: currencyField.value,
-    date: dateField.value
+    transactionDate: dateField.value,
+    category: {
+      name: categoryField.value
+    },
+    paymentMethod: {
+      name: paymentMethodField.value
+    },
+    type: {
+      name: typeField.value
+    },
+    currency: {
+      name: currencyField.value
+    }
   };
 
-  transactions.value.push(newTransaction);
+  try {
+    const response = await axios.post(`${import.meta.env.VITE_APP_BACKEND_BASE_URL}/transactions`, newTransaction);
+    console.log(response.data);
+    transactions.value.push(newTransaction);
+  } catch (error) {
+    console.error("Error posting transaction:", error);
+  }
 
   // Clear fields after adding the transaction
   nameField.value = '';
@@ -125,7 +144,6 @@ function save() {
   descriptionField.value = '';
   dateField.value = '';
 }
-
 onMounted(() => {
   fetchDropdownItems();
 });
@@ -141,7 +159,7 @@ onMounted(() => {
     </div>
 
 
-    <form class="row g-3 mb-4">
+    <form class="row g-3 mb-4" @submit.prevent="save">
       <div class="col-md-6">
         <label for="name" class="form-label">Name*</label>
         <input type="text" class="form-control" id="name" v-model="nameField">
@@ -192,7 +210,7 @@ onMounted(() => {
         <input type="date" class="form-control" id="date" v-model="dateField">
       </div>
       <div class="col-md-12">
-        <button type="submit" class="btn btn-outline-primary btn-lg"  @click.prevent="save">Submit</button>
+        <button type="submit" class="btn btn-outline-primary btn-lg" :disabled="!formValid" >Submit</button>
         <p class="mt-2"> *Make sure the mandatory fields are filled and you chose the correct type!</p>
       </div>
     </form>
