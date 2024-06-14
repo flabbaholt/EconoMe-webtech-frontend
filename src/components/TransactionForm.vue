@@ -108,6 +108,7 @@ async function save() {
   if (typeField.value === 'Expense') {
     amount = -amount;
   }
+  /*
   const newTransaction = {
     name: nameField.value,
     amount: amount,
@@ -135,7 +136,10 @@ async function save() {
   currencyField.value = '';
   descriptionField.value = '';
   dateField.value = '';
+  */
 }
+
+
 onMounted(() => {
   fetchDropdownItems();
 });
