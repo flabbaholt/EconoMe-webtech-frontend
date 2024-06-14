@@ -28,9 +28,11 @@ const filterCategory = ref('');
 const categoryDropdownItems = ref<string[]>([]);
 const currencyDropdownItems = ref<string[]>(['EUR']);
 const selectedCurrency = ref('EUR');
+const selectedYear = ref<number | null>(null);
+const selectedMonth = ref<number | null>(null);
+const years = ref([]);
+const months = ref<number[]>([]);
 
-const years = ref([2022, 2023, 2024, 2025]);
-const months = ref(['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']);
 
 async function fetchTransactions() {
   try {
@@ -63,15 +65,67 @@ async function deleteTransaction(id: number) {
   try {
     const response = await axios.delete(`${import.meta.env.VITE_APP_BACKEND_BASE_URL}/transactions/deleteById/${id}`);
     console.log('Transaction deleted:', response.data);
-    fetchTransactions();
+    await fetchTransactions();
   } catch (error) {
     console.error("Error deleting transaction:", error);
+  }
+}
+
+async function fetchYears() {
+  try {
+    const response = await axios.get(`${import.meta.env.VITE_APP_BACKEND_BASE_URL}/transactions/getYears`);
+    years.value = response.data;
+    console.log('Years:', years.value)
+  } catch (error) {
+    console.error("Error fetching years:", error);
+  }
+}
+
+async function fetchMonths() {
+  try {
+    const response = await axios.get(`${import.meta.env.VITE_APP_BACKEND_BASE_URL}/transactions/getMonths`);
+    months.value = response.data;
+  } catch (error) {
+    console.error("Error fetching months:", error);
+  }
+}
+
+async function fetchMonthsByYear(year: number) {
+  try {
+    const response = await axios.get(`${import.meta.env.VITE_APP_BACKEND_BASE_URL}/transactions/getMonthsByYear/${year}`);
+    months.value = response.data;
+    selectedYear.value = year;
+  } catch (error) {
+    console.error(`Error fetching months for year ${year}:`, error);
   }
 }
 
 function selectCurrency(currency: string) {
   selectedCurrency.value = currency;
 }
+
+function getMonthName(monthNumber: number): string {
+  const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  return monthNames[monthNumber - 1];
+}
+
+function selectMonth(month: number) {
+  selectedMonth.value = month;
+  filterMonth.value = getMonthName(month); // Update filterMonth when a month is selected
+}
+
+function selectYear(year: number) {
+  selectedYear.value = year;
+  filterYear.value = year.toString(); // Update filterYear when a year is selected
+}
+
+function resetFilters() {
+  selectedYear.value = null;
+  selectedMonth.value = null;
+  filterYear.value = '';
+  filterMonth.value = '';
+}
+
 /*
 async function fetchCurrencyRates() {
   try {
@@ -84,6 +138,8 @@ async function fetchCurrencyRates() {
 */
 onMounted(() => {
   fetchTransactions();
+  fetchYears();
+  fetchMonths()
 });
 
 const filteredTransactions = computed(() => {
@@ -105,13 +161,14 @@ const filteredTransactions = computed(() => {
     <div class="d-flex justify-content-between mb-3">
       <div>
         <div class="mb-2">
+          <button type="button" class="btn btn-outline-danger btn-sm me-2" @click="resetFilters">Remove Filter</button>
           <div class="btn-group me-2" role="group" aria-label="Year filter">
-            <button v-for="year in years" :key="year" type="button" class="btn btn-outline-primary btn-sm" @click="filterYear = year.toString()">{{ year }}</button>
+            <button v-for="year in years" :key="year" :class="{'btn-primary text-light': year === selectedYear}" type="button" class="btn btn-outline-primary btn-sm" @click="fetchMonthsByYear(year)">{{ year }}</button>
           </div>
         </div>
         <div>
           <div class="btn-group" role="group" aria-label="Month filter">
-            <button v-for="month in months" :key="month" type="button" class="btn btn-outline-secondary btn-sm" @click="filterMonth = month">{{ month }}</button>
+            <button v-for="month in months" :key="month" :disabled="selectedYear === null" :class="{'btn-secondary text-light': month === selectedMonth}" class="btn btn-outline-secondary btn-sm" @click="selectMonth(month)">{{ getMonthName(month) }}</button>
           </div>
         </div>
       </div>
