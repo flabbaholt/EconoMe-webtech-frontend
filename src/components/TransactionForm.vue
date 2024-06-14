@@ -112,18 +112,10 @@ async function save() {
     name: nameField.value,
     amount: amount,
     transactionDate: dateField.value,
-    category: {
-      name: categoryField.value
-    },
-    paymentMethod: {
-      name: paymentMethodField.value
-    },
-    type: {
-      name: typeField.value
-    },
-    currency: {
-      name: currencyField.value
-    }
+    category: categoryField.value,
+    paymentMethod: paymentMethodField.value,
+    type: typeField.value,
+    currency: currencyField.value,
   };
 
   try {
