@@ -24,6 +24,7 @@ const filterYear = ref('');
 const filterMonth = ref('');
 const filterType = ref('');
 const filterCategory = ref('');
+const isLoading = ref(true);
 
 const categoryDropdownItems = ref<string[]>([]);
 const currencyDropdownItems = ref<string[]>(['EUR']);
@@ -32,6 +33,7 @@ const selectedYear = ref<number | null>(null);
 const selectedMonth = ref<number | null>(null);
 const years = ref([]);
 const months = ref<number[]>([]);
+const currencyRates = new Map<string, number>()
 
 
 async function fetchTransactions() {
@@ -100,6 +102,21 @@ async function fetchMonthsByYear(year: number) {
   }
 }
 
+async function fetchCurrencyRatesBasedEUR() {
+  try {
+    isLoading.value = true;
+    const response = await axios.get(`${import.meta.env.VITE_APP_BACKEND_BASE_URL}/currencies/exchangeRates`);
+    currencyRates.clear();
+    Object.entries(response.data).forEach(([currency, rate]) => {
+      currencyRates.set(currency, rate as number);
+    });
+  } catch (error) {
+    console.error("Fehler beim Abrufen der Währungskurse:", error);
+  } finally {
+    isLoading.value = false;
+  }
+}
+
 function selectCurrency(currency: string) {
   selectedCurrency.value = currency;
 }
@@ -125,6 +142,40 @@ function resetFilters() {
   filterYear.value = '';
   filterMonth.value = '';
 }
+/*
+function calculateAmountInCurrency(amount: number, currency: string, selectedCurrency: string): number {
+  if (currency === selectedCurrency) {
+    return amount;
+  }
+  const rate = currencyRates.get(currency);
+  const selectedRate = currencyRates.get(selectedCurrency);
+
+  console.log(`Rate for ${currency}:`, rate); // Add logging
+  console.log(`Rate for ${selectedCurrency}:`, selectedRate); // Add logging
+
+  if (rate) {
+    const eurRate = rate * amount;
+    return eurRate / selectedRate!;
+
+  }
+  return 0;
+}*/
+
+function calculateAmountInCurrency(amount: number, currency: string, selectedCurrency: string): number {
+  if (currency === selectedCurrency) {
+    return amount;
+  }
+
+  const rate = currencyRates.get(currency);
+  const selectedRate = currencyRates.get(selectedCurrency);
+
+  if (!rate || !selectedRate) {
+    throw new Error(`Rates for ${currency} or ${selectedCurrency} not found`);
+  }
+  const eurAmount = amount / rate;
+  const result = eurAmount * selectedRate;
+  return parseFloat(result.toFixed(2));
+}
 
 /*
 async function fetchCurrencyRates() {
@@ -139,7 +190,9 @@ async function fetchCurrencyRates() {
 onMounted(() => {
   fetchTransactions();
   fetchYears();
-  fetchMonths()
+  fetchMonths();
+  fetchCurrencyRatesBasedEUR();
+  fetchCurrencyItems();
 });
 
 const filteredTransactions = computed(() => {
@@ -212,6 +265,7 @@ const filteredTransactions = computed(() => {
         <th scope="col">Payment Method</th>
         <th scope="col">Currency</th>
         <th scope="col">Date</th>
+        <th scope="col">in {{selectedCurrency}}</th>
         <th scope="col">Actions</th>
       </tr>
       </thead>
@@ -225,6 +279,8 @@ const filteredTransactions = computed(() => {
         <td>{{ transaction.paymentMethodName }}</td>
         <td>{{ transaction.currencyName }}</td>
         <td>{{ transaction.transactionDate }}</td>
+        <td v-if="isLoading">Loading...</td>
+        <td v-else>{{calculateAmountInCurrency(transaction.amount,transaction.currencyName,selectedCurrency)}}</td>
         <td>
           <div class="btn-group" role="group" aria-label="Transaction Actions">
             <button type="button" class="btn btn-outline-primary">Edit</button>
