@@ -1,7 +1,10 @@
 <script setup lang="ts">
-import {ref, onMounted, computed, watch} from 'vue';
+import {ref, onMounted, computed, watch, defineEmits} from 'vue';
 import axios from 'axios';
 import AddOptionModal from "@/components/AddOptionModal.vue";
+import HomeView from "@/views/HomeView.vue";
+
+const emit = defineEmits(['transaction-saved']);
 
 interface Transaction {
   name: string;
@@ -136,6 +139,7 @@ async function fetchPaymentItems() {
       const response = await axios.post(`${import.meta.env.VITE_APP_BACKEND_BASE_URL}/transactions`, newTransaction);
       console.log(response.data);
       transactions.value.push(newTransaction);
+      emit('transaction-saved');
     } catch (error) {
       console.error("Error posting transaction:", error);
     }
@@ -148,6 +152,9 @@ async function fetchPaymentItems() {
     paymentMethodField.value = null;
     currencyField.value = null;
     dateField.value = '';
+
+
+
   }
 
 
