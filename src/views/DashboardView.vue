@@ -1,11 +1,9 @@
-<script setup lang="ts">
-
-</script>
-
 <template>
-
+  <div>
+    <DashboardComponent />
+  </div>
 </template>
 
-<style scoped>
-
-</style>
+<script setup lang="ts">
+import DashboardComponent from '@/components/DashboardComponent.vue';
+</script>
