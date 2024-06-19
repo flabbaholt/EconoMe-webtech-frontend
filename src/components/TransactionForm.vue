@@ -35,8 +35,8 @@ const categoryDropdownItems = ref<DropdownItem[]>([]);
 const paymentDropdownItems = ref<DropdownItem[]>([]);
 
 let formValid = ref(false);
-watch([nameField, typeField, amountField, currencyField, dateField], () => {
-  formValid.value = Boolean(nameField.value && typeField.value && amountField.value && dateField.value && (typeField.value === 'Expense' || typeField.value === 'Income'));
+watch([nameField, typeField, amountField, currencyField, dateField, categoryField, paymentMethodField], () => {
+  formValid.value = Boolean(nameField.value && typeField.value && amountField.value && dateField.value && currencyField.value && categoryField.value && paymentMethodField.value && (typeField.value === 'Expense' || typeField.value === 'Income'));
 }, { immediate: true });
 
 const addCurrency = (newCurrency: DropdownItem) => {
@@ -182,7 +182,7 @@ onMounted(() => {
       <div class="col-md-6">
         <label for="amount" class="form-label">Amount*</label>
         <div class="input-group">
-          <input type="number" class="form-control" id="amount" v-model="amountField">
+          <input type="number" class="form-control" id="amount" v-model="amountField" step="0.01">
           <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" @click="fetchCurrencyItems">
             {{ currencyDropdownItems.find(item => item.id === (currencyField || 0))?.name || 'Select Currency' }}
           </button>
@@ -199,7 +199,7 @@ onMounted(() => {
         </div>
       </div>
       <div class="col-md-6">
-        <label for="category" class="form-label">Category</label>
+        <label for="category" class="form-label">Category*</label>
         <div class="input-group">
           <select class="form-select" id="category" aria-label="category select" v-model="categoryField" @click="fetchCategoryItems">
             <option selected disabled>Choose Category...</option>
@@ -211,7 +211,7 @@ onMounted(() => {
         </div>
       </div>
       <div class="col-md-6">
-        <label for="payment" class="form-label">Payment Method</label>
+        <label for="payment" class="form-label">Payment Method*</label>
         <div class="input-group">
           <select class="form-select" id="payment" aria-label="paymentMethod select" v-model="paymentMethodField" @click="fetchPaymentItems">
             <option selected disabled>Choose Payment Method...</option>
@@ -232,9 +232,9 @@ onMounted(() => {
       </div>
     </form>
 
-    <AddOptionModal modalId="addCurrencyModal" title="Add Currency" placeholder="New currency" @add-option="addCurrency" />
-    <AddOptionModal modalId="addCategoryModal" title="Add Category" placeholder="New category" @add-option="addCategory" />
-    <AddOptionModal modalId="addPaymentMethodModal" title="Add Payment Method" placeholder="New payment method" @add-option="addPaymentMethod" />
+    <AddOptionModal modalId="addCurrencyModal" title="Add Currency" placeholder="New currency" endpoint="currencies" @add-option="addCurrency" />
+    <AddOptionModal modalId="addCategoryModal" title="Add Category" placeholder="New category" endpoint="categories" @add-option="addCategory" />
+    <AddOptionModal modalId="addPaymentMethodModal" title="Add Payment Method" placeholder="New payment method" endpoint="paymentMethods" @add-option="addPaymentMethod" />
 
   </div>
 
