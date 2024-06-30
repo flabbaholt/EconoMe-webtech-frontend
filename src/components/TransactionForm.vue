@@ -250,19 +250,6 @@ onMounted(() => {
 
   </div>
 
-  <div>
-    <h3 class="mt-3">For Testing Cases Only - To be deleted</h3>
-  </div>
-  <div>
-    <input v-model="nameField" placeholder="Name" type="text">
-    <input v-model="typeField" placeholder="Type" type="text">
-    <input v-model="amountField" placeholder="Amount" type="number">
-    <input v-model="categoryField" placeholder="Category" type="text">
-    <input v-model="paymentMethodField" placeholder="Payment Method" type="text">
-    <input v-model="currencyField" placeholder="Currency" type="text">
-    <input v-model="dateField" placeholder="Date" type="date">
-    <button type="button" @click="save()">Save</button>
-  </div>
 
 </template>
 
