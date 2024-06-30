@@ -16,7 +16,7 @@ test('renders the logo', () => {
 test('renders the username', () => {
     const wrapper = mount(Navbar)
     const username = wrapper.find('.navbar-text')
-    expect(username.text()).toBe('UserName')
+    expect(username.text()).toBe('Hello UserName')
 })
 
 test('renders navigation links', () => {
