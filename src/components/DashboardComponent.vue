@@ -32,6 +32,9 @@ import Chart from 'chart.js/auto';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.min';
 
+// Importieren Sie den Typ
+import type { ChartTypeRegistry } from 'chart.js';
+
 interface TransactionData {
   transactionDate: string;
   typeName: string;
