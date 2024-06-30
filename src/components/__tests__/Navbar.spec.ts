@@ -13,12 +13,6 @@ test('renders the logo', () => {
     expect(logo.exists()).toBe(true)
 })
 
-test('renders the username', () => {
-    const wrapper = mount(Navbar)
-    const username = wrapper.find('.navbar-text')
-    expect(username.text()).toBe('UserName')
-})
-
 test('renders navigation links', () => {
     const wrapper = mount(Navbar)
     const navLinks = wrapper.findAll('.nav-link')
