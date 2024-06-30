@@ -1,7 +1,10 @@
 <script setup lang="ts">
-import {ref, onMounted, computed, watch} from 'vue';
+import {ref, onMounted, computed, watch, defineEmits} from 'vue';
 import axios from 'axios';
 import AddOptionModal from "@/components/AddOptionModal.vue";
+import HomeView from "@/views/HomeView.vue";
+
+const emit = defineEmits(['transaction-saved']);
 
 /**
  * @interface Transaction
@@ -9,11 +12,11 @@ import AddOptionModal from "@/components/AddOptionModal.vue";
  */
 interface Transaction {
   name: string;
-  typeName: string;
+  typeId: number;
   amount: number;
-  categoryName: string;
-  paymentMethodName: string;
-  currencyName: string;
+  categoryId: number | null;
+  paymentMethodId: number | null;
+  currencyId: number | null;
   transactionDate: string;
 }
 /**
@@ -29,42 +32,38 @@ interface DropdownItem {
 const nameField = ref<string>('');
 const typeField = ref<string>('');
 const amountField = ref<number>(0);
-const categoryField = ref<string>('');
-const paymentMethodField = ref<string>('');
-const currencyField = ref<string>('EUR');
-const descriptionField = ref<string>('');
+const categoryField = ref<number | null>(null);
+const paymentMethodField = ref<number | null>(null);
+const currencyField = ref<number | null>(null);
 const dateField = ref<string>('');
 
-const currencyDropdownItems = ref<string[]>([]);
-const categoryDropdownItems = ref<string[]>([]);
-const paymentDropdownItems = ref<string[]>([]);
+const currencyDropdownItems = ref<DropdownItem[]>([]);
+const categoryDropdownItems = ref<DropdownItem[]>([]);
+const paymentDropdownItems = ref<DropdownItem[]>([]);
 
-let formValid = ref(false); // Form validation status
-
-// Watch the required fields for changes and update the form validation status
-watch([nameField, typeField, amountField, currencyField, dateField], () => {
-  formValid.value = Boolean(nameField.value && typeField.value && amountField.value && dateField.value && (typeField.value === 'Expense' || typeField.value === 'Income'));
+let formValid = ref(false);
+watch([nameField, typeField, amountField, currencyField, dateField, categoryField, paymentMethodField], () => {
+  formValid.value = Boolean(nameField.value && typeField.value && amountField.value && dateField.value && currencyField.value && categoryField.value && paymentMethodField.value && (typeField.value === 'Expense' || typeField.value === 'Income'));
 }, { immediate: true });
 
-// Methods for adding new items to the dropdowns
-const addCurrency = (newCurrency: string) => {
+const addCurrency = (newCurrency: DropdownItem) => {
+
   if (newCurrency && !currencyDropdownItems.value.includes(newCurrency)) {
     currencyDropdownItems.value.push(newCurrency);
   }
 }
 
-const addCategory = (newCategory: string) => {
+const addCategory = (newCategory: DropdownItem) => {
   if (newCategory && !categoryDropdownItems.value.includes(newCategory)) {
     categoryDropdownItems.value.push(newCategory);
   }
 }
 
-const addPaymentMethod = (newPaymentMethod: string) => {
+const addPaymentMethod = (newPaymentMethod: DropdownItem) => {
   if (newPaymentMethod && !paymentDropdownItems.value.includes(newPaymentMethod)) {
     paymentDropdownItems.value.push(newPaymentMethod);
   }
 }
-// Method for setting the type of the transaction
 
 const setType = (type: string) => {
   typeField.value = type;
@@ -77,13 +76,13 @@ const transactions = ref<Transaction[]>([]);
 async function fetchDropdownItems() {
   try {
     const currencyResponse = await axios.get(`${import.meta.env.VITE_APP_BACKEND_BASE_URL}/currencies`);
-    currencyDropdownItems.value = currencyResponse.data.map((item: DropdownItem) => item.name);
+    currencyDropdownItems.value = currencyResponse.data;
 
     const categoryResponse = await axios.get(`${import.meta.env.VITE_APP_BACKEND_BASE_URL}/categories`);
-    categoryDropdownItems.value = categoryResponse.data.map((item: DropdownItem) => item.name);
+    categoryDropdownItems.value = categoryResponse.data;
 
     const paymentResponse = await axios.get(`${import.meta.env.VITE_APP_BACKEND_BASE_URL}/paymentMethods`);
-    paymentDropdownItems.value = paymentResponse.data.map((item: DropdownItem) => item.name);
+    paymentDropdownItems.value = paymentResponse.data;
   } catch (error) {
     console.error("Error fetching dropdown items:", error);
   }
@@ -92,7 +91,13 @@ async function fetchDropdownItems() {
 async function fetchCurrencyItems() {
   try {
     const currencyResponse = await axios.get(`${import.meta.env.VITE_APP_BACKEND_BASE_URL}/currencies`);
-    currencyDropdownItems.value = currencyResponse.data.map((item: DropdownItem) => item.name);
+    currencyDropdownItems.value = currencyResponse.data;
+
+    // Find the ID of "EUR" and set it as the default value for currencyField
+    const eurCurrency = currencyDropdownItems.value.find(item => item.name === 'EUR');
+    if (eurCurrency) {
+      currencyField.value = eurCurrency.id;
+    }
   } catch (error) {
     console.error("Error fetching currency dropdown items:", error);
   }
@@ -101,7 +106,7 @@ async function fetchCurrencyItems() {
 async function fetchCategoryItems() {
   try {
     const categoryResponse = await axios.get(`${import.meta.env.VITE_APP_BACKEND_BASE_URL}/categories`);
-    categoryDropdownItems.value = categoryResponse.data.map((item: DropdownItem) => item.name);
+    categoryDropdownItems.value = categoryResponse.data;
   } catch (error) {
     console.error("Error fetching category dropdown items:", error);
   }
@@ -110,53 +115,62 @@ async function fetchCategoryItems() {
 async function fetchPaymentItems() {
   try {
     const paymentResponse = await axios.get(`${import.meta.env.VITE_APP_BACKEND_BASE_URL}/paymentMethods`);
-    paymentDropdownItems.value = paymentResponse.data.map((item: DropdownItem) => item.name);
+    paymentDropdownItems.value = paymentResponse.data;
   } catch (error) {
     console.error("Error fetching paymentmethod dropdown items:", error);
   }
 }
 
-// Method for saving a new transaction
-async function save() {
-  let amount = Math.abs(amountField.value);
+  async function save() {
+    let amount = Math.abs(amountField.value);
 
-  if (typeField.value === 'Expense') {
-    amount = -amount;
+    let typeId: number;
+    if (typeField.value === 'Expense') {
+      amount = -amount;
+      typeId = 1;
+    } else if (typeField.value === 'Income') {
+      typeId = 2;
+    } else {
+      console.error("Invalid transaction type");
+      return;
+    }
+
+    const newTransaction: Transaction = {
+      name: nameField.value,
+      typeId: typeId,
+      amount: amount,
+      categoryId: categoryDropdownItems.value.find(item => item.id === categoryField.value)?.id || null,
+      paymentMethodId: paymentDropdownItems.value.find(item => item.id === paymentMethodField.value)?.id || null,
+      currencyId: currencyDropdownItems.value.find(item => item.id === currencyField.value)?.id || null,
+      transactionDate: dateField.value,
+    };
+
+    try {
+      const response = await axios.post(`${import.meta.env.VITE_APP_BACKEND_BASE_URL}/transactions`, newTransaction);
+      console.log(response.data);
+      transactions.value.push(newTransaction);
+      emit('transaction-saved');
+    } catch (error) {
+      console.error("Error posting transaction:", error);
+    }
+
+    // Clear fields after adding the transaction
+    nameField.value = '';
+    typeField.value = '';
+    amountField.value = 0;
+    categoryField.value = null;
+    paymentMethodField.value = null;
+    currencyField.value = null;
+    dateField.value = '';
+
+
+
   }
-  /*
-  const newTransaction = {
-    name: nameField.value,
-    amount: amount,
-    transactionDate: dateField.value,
-    category: categoryField.value,
-    paymentMethod: paymentMethodField.value,
-    type: typeField.value,
-    currency: currencyField.value,
-  };
-
-  try {
-    const response = await axios.post(`${import.meta.env.VITE_APP_BACKEND_BASE_URL}/transactions`, newTransaction);
-    console.log(response.data);
-    transactions.value.push(newTransaction);
-  } catch (error) {
-    console.error("Error posting transaction:", error);
-  }
-
-  // Clear fields after adding the transaction
-  nameField.value = '';
-  typeField.value = '';
-  amountField.value = 0;
-  categoryField.value = '';
-  paymentMethodField.value = '';
-  currencyField.value = '';
-  descriptionField.value = '';
-  dateField.value = '';
-  */
-}
 
 
 onMounted(() => {
   fetchDropdownItems();
+  fetchCurrencyItems();
 });
 
 </script>
@@ -179,11 +193,13 @@ onMounted(() => {
       <div class="col-md-6">
         <label for="amount" class="form-label">Amount*</label>
         <div class="input-group">
-          <input type="number" class="form-control" id="amount" v-model="amountField">
-          <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" @click="fetchCurrencyItems">{{ currencyField }}</button>
+          <input type="number" class="form-control" id="amount" v-model="amountField" step="0.01">
+          <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" @click="fetchCurrencyItems">
+            {{ currencyDropdownItems.find(item => item.id === (currencyField || 0))?.name || 'Select Currency' }}
+          </button>
           <ul class="dropdown-menu dropdown-menu-end">
-            <li v-for="item in currencyDropdownItems" :key="item" @click="currencyField = item">
-              <a class="dropdown-item" href="#">{{ item }}</a>
+            <li v-for="item in currencyDropdownItems" :key="item.id" @click="currencyField = item.id">
+              <a class="dropdown-item" href="#">{{ item.name }}</a>
             </li>
             <li>
               <button type="button" class="dropdown-item text-bg-secondary" data-bs-toggle="modal" data-bs-target="#addCurrencyModal">
@@ -194,24 +210,24 @@ onMounted(() => {
         </div>
       </div>
       <div class="col-md-6">
-        <label for="category" class="form-label">Category</label>
+        <label for="category" class="form-label">Category*</label>
         <div class="input-group">
           <select class="form-select" id="category" aria-label="category select" v-model="categoryField" @click="fetchCategoryItems">
             <option selected disabled>Choose Category...</option>
-            <option v-for="item in categoryDropdownItems" :key="item" :value = "item">
-              {{ item }}
+            <option v-for="item in categoryDropdownItems" :key="item.id" :value = "item.id">
+              {{ item.name }}
             </option>
           </select>
           <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#addCategoryModal">Add New</button>
         </div>
       </div>
       <div class="col-md-6">
-        <label for="payment" class="form-label">Payment Method</label>
+        <label for="payment" class="form-label">Payment Method*</label>
         <div class="input-group">
           <select class="form-select" id="payment" aria-label="paymentMethod select" v-model="paymentMethodField" @click="fetchPaymentItems">
             <option selected disabled>Choose Payment Method...</option>
-            <option v-for="item in paymentDropdownItems" :key="item" :value = "item">
-              {{ item }}
+            <option v-for="item in paymentDropdownItems" :key="item.id" :value = "item.id">
+              {{ item.name }}
             </option>
           </select>
           <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#addPaymentMethodModal">Add New</button>
@@ -227,10 +243,10 @@ onMounted(() => {
       </div>
     </form>
 
-    <!-- Modals for adding new items to the dropdowns -->
-    <AddOptionModal modalId="addCurrencyModal" title="Add Currency" placeholder="New currency" @add-option="addCurrency" />
-    <AddOptionModal modalId="addCategoryModal" title="Add Category" placeholder="New category" @add-option="addCategory" />
-    <AddOptionModal modalId="addPaymentMethodModal" title="Add Payment Method" placeholder="New payment method" @add-option="addPaymentMethod" />
+    <AddOptionModal modalId="addCurrencyModal" title="Add Currency" placeholder="New currency" endpoint="currencies" @add-option="addCurrency" />
+    <AddOptionModal modalId="addCategoryModal" title="Add Category" placeholder="New category" endpoint="categories" @add-option="addCategory" />
+    <AddOptionModal modalId="addPaymentMethodModal" title="Add Payment Method" placeholder="New payment method" endpoint="paymentMethods" @add-option="addPaymentMethod" />
+
 
   </div>
 

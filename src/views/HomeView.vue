@@ -2,6 +2,7 @@
 import TransactionForm from "@/components/TransactionForm.vue";
 import axios from 'axios';
 import {onMounted, ref} from "vue";
+import OverviewTable from "@/components/OverviewTable.vue";
 
 const totalBalance = ref<number>(0);
 const currency = "EUR";
@@ -41,7 +42,7 @@ onMounted(() => {
   <main>
     <h1 class="text-center fs-1">This Month:</h1>
     <p :class="{'text-success': totalBalance >= 0, 'text-danger': totalBalance < 0}" class="text-center fs-2">{{ totalBalance < 0 ? '-' : '+' }}{{ Math.abs(totalBalance) }} {{ currency }}</p>
-    <TransactionForm />
+    <TransactionForm @transaction-saved="fetchTotalBalance"/>
 
   </main>
 </template>

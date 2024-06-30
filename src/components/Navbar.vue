@@ -21,13 +21,6 @@
           </div>
         </div>
       </div>
-      <div class="d-flex">
-          <span class="navbar-text me-3">
-            Hello UserName
-            <!-- Implement User-Management Later : User Name needs to stand here later -->
-          </span>
-        <img class="img-thumbnail rounded-circle" style="width: 50px; height: 50px;" src="https://mdbootstrap.com/img/Photos/Avatars/img%20(30).jpg">
-      </div>
     </div>
   </nav>
 </template>
