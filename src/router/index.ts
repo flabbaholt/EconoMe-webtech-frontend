@@ -1,9 +1,21 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import OverviewView from "@/views/OverviewView.vue";
+/**
+ * @fileoverview This module defines the routes for the Vue application.
+ */
 
+/**
+ * @name router
+ * @description This is the router for the Vue application. It uses the 'history' mode of Vue Router, which eliminates the '#' from URLs.
+ * @type {Router}
+ */
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
+  /**
+   * @name routes
+   * @description This is an array of route objects. Each object defines a route for the Vue application.
+   */
   routes: [
     {
       path: '/',

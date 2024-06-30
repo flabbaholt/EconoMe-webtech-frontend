@@ -12,12 +12,12 @@ interface Transaction {
   currencyName: string;
   transactionDate: string;
 }
-
+// Define the DropdownItem interface
 interface DropdownItem {
   id: number;
   name: string;
 }
-
+// Define the reactive variables
 const transactions = ref<Transaction[]>([]);
 const searchTerm = ref('');
 const filterYear = ref('');
@@ -35,7 +35,7 @@ const years = ref([]);
 const months = ref<number[]>([]);
 const currencyRates = new Map<string, number>()
 
-
+// Define the methods for fetching data, deleting transactions, and handling user interactions
 async function fetchTransactions() {
   try {
     const response = await axios.get(`${import.meta.env.VITE_APP_BACKEND_BASE_URL}/transactions`);
@@ -101,7 +101,6 @@ async function fetchMonthsByYear(year: number) {
     console.error(`Error fetching months for year ${year}:`, error);
   }
 }
-
 async function fetchCurrencyRatesBasedEUR() {
   try {
     isLoading.value = true;
@@ -187,6 +186,8 @@ async function fetchCurrencyRates() {
   }
 }
 */
+// Fetch data when the component is mounted
+
 onMounted(() => {
   fetchTransactions();
   fetchYears();
@@ -194,6 +195,7 @@ onMounted(() => {
   fetchCurrencyRatesBasedEUR();
   fetchCurrencyItems();
 });
+// Compute the filtered transactions
 
 const filteredTransactions = computed(() => {
   return transactions.value.filter(transaction =>
@@ -209,8 +211,10 @@ const filteredTransactions = computed(() => {
 </script>
 
 <template>
+  <!-- The OverviewTable component displays a table of transactions with various controls for filtering and sorting the data. -->
   <div class="container-md border bg-light p-4 rounded mt-3">
     <h2 class="mb-4">Transaction Overview</h2>
+    <!-- Controls for filtering and sorting the data -->
     <div class="d-flex justify-content-between mb-3">
       <div>
         <div class="mb-2">
@@ -234,9 +238,11 @@ const filteredTransactions = computed(() => {
         </ul>
       </div>
     </div>
+    <!-- Search input -->
     <div class="mb-3">
       <input v-model="searchTerm" type="text" class="form-control" placeholder="Search transactions..." />
     </div>
+    <!-- More controls for filtering the data -->
     <div class="row mb-3">
       <div class="col-md-6">
         <select v-model="filterType" class="form-select">
@@ -254,6 +260,7 @@ const filteredTransactions = computed(() => {
         </select>
       </div>
     </div>
+    <!-- The table of transactions -->
     <table class="table table-hover table-bordered">
       <thead class="table-dark">
       <tr>
@@ -294,6 +301,7 @@ const filteredTransactions = computed(() => {
 </template>
 
 <style scoped>
+/* Styles for the OverviewTable component */
 .container-md {
   background-color: #f8f9fa;
 }

@@ -7,6 +7,11 @@ import OverviewTable from "@/components/OverviewTable.vue";
 const totalBalance = ref<number>(0);
 const currency = "EUR";
 
+/**
+ * @async
+ * @function fetchTotalBalance
+ * @description Fetches the total balance for the current month and year from the backend and updates the totalBalance reactive variable.
+ */
 async function fetchTotalBalance() {
   try {
     const currentDate = new Date();
@@ -20,12 +25,20 @@ async function fetchTotalBalance() {
   }
 }
 
+// Fetch the total balance when the component is mounted
 onMounted(() => {
   fetchTotalBalance();
 });
 </script>
 
 <template>
+  <!--
+  The HomeView component displays the total balance for the current month and year, and a form for adding new transactions.
+
+  The total balance is displayed in green if it is greater than or equal to 0, and in red if it is less than 0.
+
+  The TransactionForm component is responsible for providing a form for adding new transactions.
+  -->
   <main>
     <h1 class="text-center fs-1">This Month:</h1>
     <p :class="{'text-success': totalBalance >= 0, 'text-danger': totalBalance < 0}" class="text-center fs-2">{{ totalBalance < 0 ? '-' : '+' }}{{ Math.abs(totalBalance) }} {{ currency }}</p>

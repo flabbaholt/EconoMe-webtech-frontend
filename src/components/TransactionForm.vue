@@ -6,6 +6,10 @@ import HomeView from "@/views/HomeView.vue";
 
 const emit = defineEmits(['transaction-saved']);
 
+/**
+ * @interface Transaction
+ * @description Interface for a transaction object
+ */
 interface Transaction {
   name: string;
   typeId: number;
@@ -15,13 +19,16 @@ interface Transaction {
   currencyId: number | null;
   transactionDate: string;
 }
-
+/**
+ * @interface DropdownItem
+ * @description Interface for a dropdown item object
+ */
 interface DropdownItem {
   id: number;
   name: string;
 }
 
-
+// Define the reactive variables
 const nameField = ref<string>('');
 const typeField = ref<string>('');
 const amountField = ref<number>(0);
@@ -40,6 +47,7 @@ watch([nameField, typeField, amountField, currencyField, dateField, categoryFiel
 }, { immediate: true });
 
 const addCurrency = (newCurrency: DropdownItem) => {
+
   if (newCurrency && !currencyDropdownItems.value.includes(newCurrency)) {
     currencyDropdownItems.value.push(newCurrency);
   }
@@ -60,9 +68,11 @@ const addPaymentMethod = (newPaymentMethod: DropdownItem) => {
 const setType = (type: string) => {
   typeField.value = type;
 }
-
+// Reactive variable for holding the list of transactions
 const transactions = ref<Transaction[]>([]);
 
+
+// Methods for fetching data from the backend
 async function fetchDropdownItems() {
   try {
     const currencyResponse = await axios.get(`${import.meta.env.VITE_APP_BACKEND_BASE_URL}/currencies`);
@@ -167,13 +177,14 @@ onMounted(() => {
 
 
 <template>
+  <!-- The TransactionForm component provides a form for adding new transactions. -->
   <div class="container-md border bg-secondary-custom rounded w-50">
     <div class="btn-group mt-2 mb-2" role="group" aria-label="Expense and Income">
       <button type="button" class="btn border border-danger fw-bold text-danger" :class="{'text-bg-danger text-white': typeField === 'Expense'}" style="--bs-border-opacity: .5;" @click="setType('Expense')">Expense</button>
       <button type="button" class="btn border border-success fw-bold text-success" :class="{'text-bg-success text-white': typeField === 'Income'}" style="--bs-border-opacity: .5;" @click="setType('Income')">Income</button>
     </div>
 
-
+    <!-- Form for adding new transactions -->
     <form class="row g-3 mb-4" @submit.prevent="save">
       <div class="col-md-6">
         <label for="name" class="form-label">Name*</label>
@@ -235,6 +246,7 @@ onMounted(() => {
     <AddOptionModal modalId="addCurrencyModal" title="Add Currency" placeholder="New currency" endpoint="currencies" @add-option="addCurrency" />
     <AddOptionModal modalId="addCategoryModal" title="Add Category" placeholder="New category" endpoint="categories" @add-option="addCategory" />
     <AddOptionModal modalId="addPaymentMethodModal" title="Add Payment Method" placeholder="New payment method" endpoint="paymentMethods" @add-option="addPaymentMethod" />
+
 
   </div>
 
