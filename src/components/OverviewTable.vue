@@ -161,6 +161,10 @@ function calculateAmountInCurrency(amount: number, currency: string, selectedCur
 }*/
 
 function calculateAmountInCurrency(amount: number, currency: string, selectedCurrency: string): number {
+  if (!currency || !selectedCurrency) {
+    throw new Error(`Currency or selected currency is undefined`);
+  }
+
   if (currency === selectedCurrency) {
     return amount;
   }
@@ -174,6 +178,15 @@ function calculateAmountInCurrency(amount: number, currency: string, selectedCur
   const eurAmount = amount / rate;
   const result = eurAmount * selectedRate;
   return parseFloat(result.toFixed(2));
+}
+
+function calculateAndCheckAmountInCurrency(amount: number, currency: string, selectedCurrency: string): number {
+  if (currency && selectedCurrency) {
+    return calculateAmountInCurrency(amount, currency, selectedCurrency);
+  } else {
+    console.error(`Currency or selected currency is undefined. Currency: ${currency}, Selected Currency: ${selectedCurrency}`);
+    return 0;
+  }
 }
 
 /*
@@ -287,7 +300,7 @@ const filteredTransactions = computed(() => {
         <td>{{ transaction.currencyName }}</td>
         <td>{{ transaction.transactionDate }}</td>
         <td v-if="isLoading">Loading...</td>
-        <td v-else>{{calculateAmountInCurrency(transaction.amount,transaction.currencyName,selectedCurrency)}}</td>
+        <td v-else>{{calculateAndCheckAmountInCurrency(transaction.amount,transaction.currencyName,selectedCurrency)}}</td>
         <td>
           <div class="btn-group" role="group" aria-label="Transaction Actions">
             <button type="button" class="btn btn-outline-primary">Edit</button>

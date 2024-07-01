@@ -52,7 +52,7 @@ const monthlyExpenseChart = ref<Chart | null>(null);
 
 const fetchDataByYear = async (year: number) => {
   try {
-    const response = await axios.get(`${baseURL}/transactions`, { params: { year } });
+    const response = await axios.get(`${baseURL}/transactions/dashboard`, { params: { year } });
     const data: Transaction[] = response.data;
 
     let totalIncome = 0;

@@ -18,7 +18,7 @@ async function fetchTotalBalance() {
     const currentYear = currentDate.getFullYear();
     const currentMonth = currentDate.getMonth() + 1; // Adding 1 because getMonth() is 0-based
     console.log(currentYear, currentMonth);
-    const amountResponse = await axios.get(`${import.meta.env.VITE_APP_BACKEND_BASE_URL}/totalBalance/${currentYear}/${currentMonth}`);
+    const amountResponse = await axios.get(`${import.meta.env.VITE_APP_BACKEND_BASE_URL}/transactions/totalBalance/${currentYear}/${currentMonth}`);
     totalBalance.value = amountResponse.data;
   } catch (error) {
     console.error("Error fetching total balance:", error);
