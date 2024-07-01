@@ -37,7 +37,7 @@ describe('AddOptionModal.vue', () => {
     await input.setValue('New Item');
     await wrapper.find('button.btn-primary').trigger('click');
     expect(wrapper.emitted('add-option')).toBeTruthy();
-    expect(wrapper.emitted('add-option')![0]).toEqual(['New Item']);
+    expect(wrapper.emitted('add-option')![0]).toEqual([{ id: 0, name: 'New Item' }]);
   });
 
   it('clears the input value after emitting add-option event', async () => {
