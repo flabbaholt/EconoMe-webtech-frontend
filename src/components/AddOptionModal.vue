@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, defineProps, defineEmits } from 'vue';
+import type { DropdownItem } from '@/components/TransactionForm.vue';
 
 const props = defineProps({
   modalId: String,

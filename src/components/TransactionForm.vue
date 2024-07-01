@@ -24,7 +24,7 @@ interface Transaction {
  * @interface DropdownItem
  * @description Interface for a dropdown item object
  */
-interface DropdownItem {
+export interface DropdownItem {
   id: number;
   name: string;
 }
