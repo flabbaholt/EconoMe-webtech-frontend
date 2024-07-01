@@ -3,6 +3,7 @@ import {ref, onMounted, computed, watch, defineEmits} from 'vue';
 import axios from 'axios';
 import AddOptionModal from "@/components/AddOptionModal.vue";
 import HomeView from "@/views/HomeView.vue";
+import { validCurrencies } from '../validCurrencies';
 
 const emit = defineEmits(['transaction-saved']);
 
@@ -46,22 +47,70 @@ watch([nameField, typeField, amountField, currencyField, dateField, categoryFiel
   formValid.value = Boolean(nameField.value && typeField.value && amountField.value && dateField.value && currencyField.value && categoryField.value && paymentMethodField.value && (typeField.value === 'Expense' || typeField.value === 'Income'));
 }, { immediate: true });
 
-const addCurrency = (newCurrency: DropdownItem) => {
 
-  if (newCurrency && !currencyDropdownItems.value.includes(newCurrency)) {
-    currencyDropdownItems.value.push(newCurrency);
+const addCategory = async (newCategory: DropdownItem) => {
+  if (newCategory && newCategory.name && !categoryDropdownItems.value.some(item => item.name === newCategory.name)) {
+    try {
+      const categoryData = {
+        id: newCategory.id,
+        name: newCategory.name
+      };
+      const response = await axios.post(`${import.meta.env.VITE_APP_BACKEND_BASE_URL}/categories`, categoryData, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      categoryDropdownItems.value.push(response.data);
+      await fetchCategoryItems(); // Fetch the updated list of categories
+    } catch (error) {
+      console.error("Error adding new category:", error);
+    }
   }
 }
 
-const addCategory = (newCategory: DropdownItem) => {
-  if (newCategory && !categoryDropdownItems.value.includes(newCategory)) {
-    categoryDropdownItems.value.push(newCategory);
+
+const addPaymentMethod = async (newPaymentMethod: DropdownItem) => {
+  if (newPaymentMethod && newPaymentMethod.name && !paymentDropdownItems.value.some(item => item.name === newPaymentMethod.name)) {
+    try {
+      const paymentMethodData = {
+        id: newPaymentMethod.id,
+        name: newPaymentMethod.name
+      };
+      const response = await axios.post(`${import.meta.env.VITE_APP_BACKEND_BASE_URL}/paymentMethods`, paymentMethodData, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      paymentDropdownItems.value.push(response.data);
+      await fetchPaymentItems(); // Fetch the updated list of payment methods
+    } catch (error) {
+      console.error("Error adding new payment method:", error);
+    }
   }
 }
 
-const addPaymentMethod = (newPaymentMethod: DropdownItem) => {
-  if (newPaymentMethod && !paymentDropdownItems.value.includes(newPaymentMethod)) {
-    paymentDropdownItems.value.push(newPaymentMethod);
+const addCurrency = async (newCurrency: DropdownItem) => {
+  if (newCurrency && newCurrency.name && !currencyDropdownItems.value.some(item => item.name === newCurrency.name)) {
+    // Check if the new currency is valid
+    if (!validCurrencies.includes(newCurrency.name)) {
+      throw new Error("Invalid currency");
+    }
+
+    try {
+      const currencyData = {
+        id: newCurrency.id,
+        name: newCurrency.name
+      };
+      const response = await axios.post(`${import.meta.env.VITE_APP_BACKEND_BASE_URL}/currencies`, currencyData, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      currencyDropdownItems.value.push(response.data);
+      await fetchCurrencyItems(); // Fetch the updated list of currencies
+    } catch (error) {
+      console.error("Error adding new currency:", error);
+    }
   }
 }
 
@@ -111,6 +160,7 @@ async function fetchCategoryItems() {
     console.error("Error fetching category dropdown items:", error);
   }
 }
+
 
 async function fetchPaymentItems() {
   try {

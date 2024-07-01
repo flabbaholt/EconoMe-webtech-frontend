@@ -1,22 +1,27 @@
 <script setup lang="ts">
-  import { ref, defineProps, defineEmits } from 'vue';
+import { ref, defineProps, defineEmits } from 'vue';
 
-  const props = defineProps({
-    modalId: String,
-    title: String,
-    placeholder: String
-  });
+const props = defineProps({
+  modalId: String,
+  title: String,
+  placeholder: String
+});
 
-  const emit = defineEmits(['add-option']);
+const emit = defineEmits(['add-option']);
 
-  const newOption = ref<string>('');
+const newOption = ref<string>('');
+let idCounter = 0;
 
-  const addOption = () => {
-    emit('add-option', newOption.value);
-    newOption.value = '';
-  }
-
+const addOption = () => {
+  const newDropdownItem: DropdownItem = {
+    id: idCounter++,
+    name: newOption.value
+  };
+  emit('add-option', newDropdownItem);
+  newOption.value = '';
+}
 </script>
+
 
 <template>
   <div class="modal fade" :id="modalId" tabindex="-1" :aria-labelledby="modalId + 'Label'" aria-hidden="true">
