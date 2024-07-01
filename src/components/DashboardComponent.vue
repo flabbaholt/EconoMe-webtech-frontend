@@ -3,7 +3,13 @@
     <h2 class="mb-4">Dashboard</h2>
     <div class="controls mb-4">
       <div class="dropdown">
-        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+        <button
+          class="btn btn-secondary dropdown-toggle"
+          type="button"
+          id="dropdownMenuButton1"
+          data-bs-toggle="dropdown"
+          aria-expanded="false"
+        >
           Select Year
         </button>
         <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
@@ -32,27 +38,22 @@ import Chart from 'chart.js/auto';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.min';
 
-// Importieren Sie den Typ
-import type { ChartTypeRegistry } from 'chart.js';
-
-interface TransactionData {
+interface Transaction {
   transactionDate: string;
-  typeName: string;
+  type: { name: string };
   amount: number;
 }
 
 const years = ref<number[]>([]);
-const selectedYear = ref<number | null>(null);
-const baseURL = import.meta.env.VITE_APP_BACKEND_BASE_URL;
+const baseURL = 'http://localhost:8080';
 const incomeExpenseChart = ref<Chart | null>(null);
 const monthlyIncomeChart = ref<Chart | null>(null);
 const monthlyExpenseChart = ref<Chart | null>(null);
 
 const fetchDataByYear = async (year: number) => {
-  selectedYear.value = year;
   try {
-    const response = await axios.get(`${baseURL}/transactions/dashboard`, { params: { year } });
-    const data = response.data as TransactionData[];
+    const response = await axios.get(`${baseURL}/transactions`, { params: { year } });
+    const data: Transaction[] = response.data;
 
     let totalIncome = 0;
     let totalExpense = 0;
@@ -61,29 +62,29 @@ const fetchDataByYear = async (year: number) => {
     const monthlyExpenseData = Array(12).fill(0);
 
     data.forEach(item => {
+      if (!item || !item.type || !item.type.name) {
+        console.error(`Invalid item received: ${JSON.stringify(item)}`);
+        return;
+      }
       const month = new Date(item.transactionDate).getMonth();
-      if (item.typeName === 'Income') {
+      if (item.type.name === 'Income') {
         totalIncome += item.amount;
         monthlyIncomeData[month] += item.amount;
-      } else if (item.typeName === 'Expense') {
+      } else if (item.type.name === 'Expense') {
         totalExpense += item.amount;
         monthlyExpenseData[month] += item.amount;
       }
     });
 
-    console.log(`Data fetched for year ${year}:`, data);
-    console.log('Income Data:', totalIncome);
-    console.log('Expense Data:', totalExpense);
-
-    updateChart(incomeExpenseChart, 'Income vs Expense', ['Income', 'Expense'], [totalIncome, totalExpense], 'doughnut');
-    updateChart(monthlyIncomeChart, 'Monthly Income', ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'], monthlyIncomeData, 'bar');
-    updateChart(monthlyExpenseChart, 'Monthly Expense', ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'], monthlyExpenseData, 'bar');
+    updateChart(incomeExpenseChart, 'Income vs Expense', ['Income', 'Expense'], [totalIncome, totalExpense], 'doughnut', ['rgba(255, 99, 132, 0.2)', 'rgba(75, 192, 192, 0.2)'], ['rgba(255, 99, 132, 1)', 'rgba(75, 192, 192, 1)']);
+    updateChart(monthlyIncomeChart, 'Monthly Income', ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'], monthlyIncomeData, 'bar', 'rgba(255, 99, 132, 0.2)', 'rgba(255, 99, 132, 1)');
+    updateChart(monthlyExpenseChart, 'Monthly Expense', ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'], monthlyExpenseData, 'bar', 'rgba(75, 192, 192, 0.2)', 'rgba(75, 192, 192, 1)');
   } catch (error) {
     console.error('Fehler beim Abrufen der Daten:', error);
   }
 };
 
-const updateChart = (chartRef: any, label: string, labels: string[], data: number[], type: keyof ChartTypeRegistry) => {
+const updateChart = (chartRef: any, label: string, labels: string[], data: number[], type: 'doughnut' | 'bar', bgColors: string | string[], borderColors: string | string[]) => {
   const ctx = document.getElementById(
     chartRef === incomeExpenseChart
       ? 'incomeExpenseChart'
@@ -91,9 +92,12 @@ const updateChart = (chartRef: any, label: string, labels: string[], data: numbe
         ? 'monthlyIncomeChart'
         : 'monthlyExpenseChart'
   ) as HTMLCanvasElement;
+
   if (chartRef.value) {
     chartRef.value.destroy();
+    chartRef.value = null;
   }
+
   if (ctx) {
     chartRef.value = new Chart(ctx, {
       type: type,
@@ -103,14 +107,8 @@ const updateChart = (chartRef: any, label: string, labels: string[], data: numbe
           {
             label: label,
             data: data,
-            backgroundColor:
-              type === 'doughnut'
-                ? ['rgba(75, 192, 192, 0.2)', 'rgba(255, 99, 132, 0.2)']
-                : 'rgba(54, 162, 235, 0.2)',
-            borderColor:
-              type === 'doughnut'
-                ? ['rgba(75, 192, 192, 1)', 'rgba(255, 99, 132, 1)']
-                : 'rgba(54, 162, 235, 1)',
+            backgroundColor: Array.isArray(bgColors) ? bgColors : [bgColors],
+            borderColor: Array.isArray(borderColors) ? borderColors : [borderColors],
             borderWidth: 1,
           },
         ],
