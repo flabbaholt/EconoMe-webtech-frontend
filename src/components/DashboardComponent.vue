@@ -45,14 +45,13 @@ interface Transaction {
 }
 
 const years = ref<number[]>([]);
-const baseURL = 'http://localhost:8080';
 const incomeExpenseChart = ref<Chart | null>(null);
 const monthlyIncomeChart = ref<Chart | null>(null);
 const monthlyExpenseChart = ref<Chart | null>(null);
 
 const fetchDataByYear = async (year: number) => {
   try {
-    const response = await axios.get(`${baseURL}/transactions/dashboard`, { params: { year } });
+    const response = await axios.get(`${import.meta.env.VITE_APP_BACKEND_BASE_URL}/transactions/dashboard`, { params: { year } });
     const data: Transaction[] = response.data;
 
     let totalIncome = 0;
@@ -123,7 +122,7 @@ const updateChart = (chartRef: any, label: string, labels: string[], data: numbe
 
 onMounted(async () => {
   try {
-    const yearsResponse = await axios.get(`${baseURL}/transactions/getYears`);
+    const yearsResponse = await axios.get(`${import.meta.env.VITE_APP_BACKEND_BASE_URL}/transactions/getYears`);
     years.value = yearsResponse.data;
     if (years.value.length > 0) {
       fetchDataByYear(years.value[0]);
