@@ -1,6 +1,9 @@
 <template>
+  <!-- Main container for the Dashboard component -->
   <div class="container-md border bg-light p-4 rounded mt-3">
+    <!-- Dashboard title -->
     <h2 class="mb-4">Dashboard</h2>
+    <!-- Dropdown for selecting the year for data display -->
     <div class="controls mb-4">
       <div class="dropdown">
         <button
@@ -12,6 +15,7 @@
         >
           Select Year
         </button>
+        <!-- Dropdown menu for year selection -->
         <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
           <li v-for="year in years" :key="year">
             <a class="dropdown-item" @click="fetchDataByYear(year)">{{ year }}</a>
@@ -38,17 +42,26 @@ import Chart from 'chart.js/auto';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.min';
 
+/**
+ * Interface for transaction data structure.
+ */
 interface Transaction {
   transactionDate: string;
   type: { name: string };
   amount: number;
 }
-
+// Reactive reference for available years for data filtering
 const years = ref<number[]>([]);
 const incomeExpenseChart = ref<Chart | null>(null);
 const monthlyIncomeChart = ref<Chart | null>(null);
 const monthlyExpenseChart = ref<Chart | null>(null);
 
+
+/**
+ * Fetches and processes transaction data for a given year.
+ * Updates chart data based on fetched transactions.
+ * @param {number} year - The year for which to fetch and display data.
+ */
 const fetchDataByYear = async (year: number) => {
   try {
     const response = await axios.get(`${import.meta.env.VITE_APP_BACKEND_BASE_URL}/transactions/dashboard`, { params: { year } });
@@ -124,6 +137,13 @@ const updateChart = (chartRef: any, label: string, labels: string[], data: numbe
   }
 };
 
+/**
+ * Fetches available years from the backend and initializes chart data for the first year.
+ *
+ * This function is called when the component is mounted. It makes an HTTP GET request to fetch
+ * the list of years for which transaction data is available. If the fetch is successful and
+ * years are available, it initializes the chart data for the first year in the list.
+ */
 onMounted(async () => {
   try {
     const yearsResponse = await axios.get(`${import.meta.env.VITE_APP_BACKEND_BASE_URL}/transactions/getYears`);

@@ -5,6 +5,7 @@ import AddOptionModal from "@/components/AddOptionModal.vue";
 import HomeView from "@/views/HomeView.vue";
 import { validCurrencies } from '../validCurrencies';
 
+// Emits an event when a transaction is successfully saved
 const emit = defineEmits(['transaction-saved']);
 
 /**
@@ -38,16 +39,21 @@ const paymentMethodField = ref<number | null>(null);
 const currencyField = ref<number | null>(null);
 const dateField = ref<string>('');
 
+// Reactive state variables for dropdown options
 const currencyDropdownItems = ref<DropdownItem[]>([]);
 const categoryDropdownItems = ref<DropdownItem[]>([]);
 const paymentDropdownItems = ref<DropdownItem[]>([]);
 
+// Computed property to validate form data
 let formValid = ref(false);
 watch([nameField, typeField, amountField, currencyField, dateField, categoryField, paymentMethodField], () => {
   formValid.value = Boolean(nameField.value && typeField.value && amountField.value && dateField.value && currencyField.value && categoryField.value && paymentMethodField.value && (typeField.value === 'Expense' || typeField.value === 'Income'));
 }, { immediate: true });
 
-
+/**
+ * Adds a new category to the list of categories.
+ * @param {DropdownItem} newCategory - The new category to add.
+ */
 const addCategory = async (newCategory: DropdownItem) => {
   if (newCategory && newCategory.name && !categoryDropdownItems.value.some(item => item.name === newCategory.name)) {
     try {
@@ -68,7 +74,10 @@ const addCategory = async (newCategory: DropdownItem) => {
   }
 }
 
-
+/**
+ * Adds a new payment method to the list of payment methods.
+ * @param {DropdownItem} newPaymentMethod - The new payment method to add.
+ */
 const addPaymentMethod = async (newPaymentMethod: DropdownItem) => {
   if (newPaymentMethod && newPaymentMethod.name && !paymentDropdownItems.value.some(item => item.name === newPaymentMethod.name)) {
     try {
@@ -89,6 +98,10 @@ const addPaymentMethod = async (newPaymentMethod: DropdownItem) => {
   }
 }
 
+/**
+ * Adds a new currency to the list of currencies.
+ * @param {DropdownItem} newCurrency - The new currency to add.
+ */
 const addCurrency = async (newCurrency: DropdownItem) => {
   if (newCurrency && newCurrency.name && !currencyDropdownItems.value.some(item => item.name === newCurrency.name)) {
     // Check if the new currency is valid
@@ -114,6 +127,10 @@ const addCurrency = async (newCurrency: DropdownItem) => {
   }
 }
 
+/**
+ * Sets the transaction type (Expense or Income).
+ * @param {string} type - The transaction type.
+ */
 const setType = (type: string) => {
   typeField.value = type;
 }
@@ -136,6 +153,8 @@ async function fetchDropdownItems() {
     console.error("Error fetching dropdown items:", error);
   }
 }
+
+// Fetches currency items and sets the default currency if available
 
 async function fetchCurrencyItems() {
   try {
