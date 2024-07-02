@@ -56,12 +56,11 @@ const fetchDataByYear = async (year: number) => {
 
     let totalIncome = 0;
     let totalExpense = 0;
-
     const monthlyIncomeData = Array(12).fill(0);
     const monthlyExpenseData = Array(12).fill(0);
 
     data.forEach(item => {
-      if (!item || !item.type || !item.type.name) {
+      if (!item || !item.transactionDate || !item.type || !item.type.name || typeof item.amount !== 'number') {
         console.error(`Invalid item received: ${JSON.stringify(item)}`);
         return;
       }
@@ -75,13 +74,18 @@ const fetchDataByYear = async (year: number) => {
       }
     });
 
-    updateChart(incomeExpenseChart, 'Income vs Expense', ['Income', 'Expense'], [totalIncome, totalExpense], 'doughnut', ['rgba(255, 99, 132, 0.2)', 'rgba(75, 192, 192, 0.2)'], ['rgba(255, 99, 132, 1)', 'rgba(75, 192, 192, 1)']);
-    updateChart(monthlyIncomeChart, 'Monthly Income', ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'], monthlyIncomeData, 'bar', 'rgba(255, 99, 132, 0.2)', 'rgba(255, 99, 132, 1)');
-    updateChart(monthlyExpenseChart, 'Monthly Expense', ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'], monthlyExpenseData, 'bar', 'rgba(75, 192, 192, 0.2)', 'rgba(75, 192, 192, 1)');
+    if(totalIncome > 0 || totalExpense > 0) {
+      updateChart(incomeExpenseChart, 'Income vs Expense', ['Income', 'Expense'], [totalIncome, totalExpense], 'doughnut', ['rgba(255, 99, 132, 0.2)', 'rgba(75, 192, 192, 0.2)'], ['rgba(255, 99, 132, 1)', 'rgba(75, 192, 192, 1)']);
+      updateChart(monthlyIncomeChart, 'Monthly Income', ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'], monthlyIncomeData, 'bar', 'rgba(255, 99, 132, 0.2)', 'rgba(255, 99, 132, 1)');
+      updateChart(monthlyExpenseChart, 'Monthly Expense', ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'], monthlyExpenseData, 'bar', 'rgba(75, 192, 192, 0.2)', 'rgba(75, 192, 192, 1)');
+    } else {
+      console.error("No valid data to display charts.");
+    }
   } catch (error) {
     console.error('Fehler beim Abrufen der Daten:', error);
   }
 };
+
 
 const updateChart = (chartRef: any, label: string, labels: string[], data: number[], type: 'doughnut' | 'bar', bgColors: string | string[], borderColors: string | string[]) => {
   const ctx = document.getElementById(
