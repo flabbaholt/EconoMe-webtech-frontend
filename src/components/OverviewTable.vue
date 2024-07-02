@@ -303,7 +303,6 @@ const filteredTransactions = computed(() => {
         <td v-else>{{calculateAndCheckAmountInCurrency(transaction.amount,transaction.currencyName,selectedCurrency)}}</td>
         <td>
           <div class="btn-group" role="group" aria-label="Transaction Actions">
-            <button type="button" class="btn btn-outline-primary">Edit</button>
             <button type="button" class="btn btn-outline-danger" @click="deleteTransaction(transaction.id)" >Delete</button>
           </div>
         </td>
